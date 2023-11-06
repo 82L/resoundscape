@@ -6,21 +6,28 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
 {
-   public Camera playerCamera;
-   public float walkSpeed = 6f;
-   public float runSpeed = 12f;
-   public float jumpPower = 7f;
-   public float gravity = 10f;
+   [SerializeField]private Camera playerCamera;
+   [SerializeField]private float walkSpeed = 6f;
+   [SerializeField]private float runSpeed = 12f;
+   [SerializeField] private AudioClip source;
    
-   public float lookSpeed = 2f;
-   public float lookXLimit = 45f;
+   [SerializeField]private float lookSpeed = 2f;
+   [SerializeField]private float lookXLimit = 45f;
+   [SerializeField]private bool canMove = true;
    
-   Vector3 moveDirection = Vector3.zero;
-   float rotationX = 0;
+   
+   private Vector3 moveDirection = Vector3.zero;
+   private float rotationX = 0;
 
-   public bool canMove = true;
-   CharacterController characterController;
    
+   private CharacterController characterController;
+
+   private bool _clipRecordIsEnabled;
+   private AudioSourceManager _currentAudioSourceManager;
+   private long _timeStartRecord;
+   private bool _isRecording;
+   Ray _rayOrigin;
+   RaycastHit _hitInfo;
    void Start()
    {
       characterController = GetComponent<CharacterController>();
@@ -46,19 +53,19 @@ public class FPSController : MonoBehaviour
 
       #region Handles Jumping
 
-      if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
-      {
-         moveDirection.y = jumpPower;
-      }
-      else
-      {
-         moveDirection.y = movementDirectionY;
-      }
-
-      if (!characterController.isGrounded)
-      {
-         moveDirection.y = gravity * Time.deltaTime;
-      }
+      // if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
+      // {
+      //    moveDirection.y = jumpPower;
+      // }
+      // else
+      // {
+      //    moveDirection.y = movementDirectionY;
+      // }
+      //
+      // if (!characterController.isGrounded)
+      // {
+      //    moveDirection.y = gravity * Time.deltaTime;
+      // }
 
       #endregion
 
@@ -72,6 +79,52 @@ public class FPSController : MonoBehaviour
          playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
          transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
       }
+      #endregion
+
+      #region HandlesClipSave
+      long currentTime = new DateTimeOffset(System.DateTime.Now).ToUnixTimeSeconds();
+      if (Input.GetKeyDown(KeyCode.R)  && _clipRecordIsEnabled && !_isRecording)
+      {
+         
+            AudioRecorder.StartRecording(source);
+            _timeStartRecord =  currentTime;
+            _isRecording = true;
+        
+      }
+      else if (Input.GetKeyDown(KeyCode.R) && _isRecording)
+      {
+         _isRecording = false;
+         _currentAudioSourceManager.SetNewAudioClip(AudioRecorder.EndRecording(), currentTime - _timeStartRecord);
+      }
+      
+      if (Input.GetKeyUp(KeyCode.R) && _isRecording  && _timeStartRecord + 2 < currentTime)
+      {
+            _isRecording = false;
+            _currentAudioSourceManager.SetNewAudioClip(AudioRecorder.EndRecording(), currentTime - _timeStartRecord);
+      }
+
+      #endregion
+
+      #region Raycast test
+
+      int layerMask = LayerMask.GetMask("SoundSensitive");
+      bool raycastHit = Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out _hitInfo,
+         5f,
+         layerMask);
+      if (raycastHit && !_clipRecordIsEnabled)
+      {
+         Debug.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * 5f, Color.yellow);
+         _currentAudioSourceManager = _hitInfo.transform.gameObject.GetComponentInParent<AudioSourceManager>();
+         _clipRecordIsEnabled = true;
+         Debug.Log(_currentAudioSourceManager);
+         Debug.Log( _hitInfo.transform.gameObject);
+      }
+      else if (!raycastHit && !_isRecording && _clipRecordIsEnabled)
+      {
+         _clipRecordIsEnabled = false;
+         _currentAudioSourceManager = null;
+      }
+
       #endregion
    }
 }
