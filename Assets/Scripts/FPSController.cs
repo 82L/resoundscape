@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
@@ -17,22 +14,21 @@ public class FPSController : MonoBehaviour
    [SerializeField]private bool canMove = true;
    // [SerializeField] public GameEventGameObject onModelPointing;
    
-   private Vector3 moveDirection = Vector3.zero;
-   private float rotationX = 0;
-
+   private Vector3 _moveDirection = Vector3.zero;
+   private float _rotationX = 0;
    
-   private CharacterController characterController;
+   private CharacterController _characterController;
 
    private bool _clipRecordIsEnabled;
-   private AudioSourceManager _currentAudioSourceManager;
+   //private AudioSourceManager _currentAudioSourceManager;
    private ElementManager _currentElemManager;
    private long _timeStartRecord;
    private bool _isRecording;
-   Ray _rayOrigin;
-   RaycastHit _hitInfo;
+   private Ray _rayOrigin;
+   private RaycastHit _hitInfo;
    void Start()
    {
-      characterController = GetComponent<CharacterController>();
+      _characterController = GetComponent<CharacterController>();
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
    }
@@ -48,8 +44,8 @@ public class FPSController : MonoBehaviour
       bool isRunning = Input.GetKey(KeyCode.LeftShift);
       float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
       float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
-      float movementDirectionY = moveDirection.y;
-      moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+      float movementDirectionY = _moveDirection.y;
+      _moveDirection = (forward * curSpeedX) + (right * curSpeedY);
 
       #endregion
 
@@ -73,12 +69,12 @@ public class FPSController : MonoBehaviour
 
       #region Handles Rotation
 
-      characterController.Move(moveDirection * Time.deltaTime);
+      _characterController.Move(_moveDirection * Time.deltaTime);
       if (canMove)
       {
-         rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
-         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+         _rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+         _rotationX = Mathf.Clamp(_rotationX, -lookXLimit, lookXLimit);
+         playerCamera.transform.localRotation = Quaternion.Euler(_rotationX, 0, 0);
          transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
       }
       #endregion
@@ -139,7 +135,7 @@ public class FPSController : MonoBehaviour
       {
          _currentElemManager.NotPointedAt();
          _clipRecordIsEnabled = false;
-         _currentAudioSourceManager = null;
+         _currentElemManager = null;
       }
 
       #endregion
