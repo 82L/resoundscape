@@ -1,9 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public static class AudioRecorder 
+public class AudioRecorder : MonoBehaviour
 {
+    private static AudioRecorder _instance;
+    [SerializeField] public GameEvent onClipRecordingStart;
+    [SerializeField] public GameEvent onClipRecordingEnd;
+
+
+    public static AudioRecorder Instance
+    {
+        get;
+        private set;
+    }
+    private AudioRecorder(){} 
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+            Destroy(gameObject);    // Suppression d'une instance précédente (sécurité...sécurité...)
+ 
+        _instance = this;
+    }
+
     // Boolean flags shows if the microphone is connected   
     private static bool _micConnected = false;    
     
@@ -13,6 +34,7 @@ public static class AudioRecorder
     
 
     private static AudioClip _currentAudioClip;
+    
     // Start is called before the first frame update
     private static void  Initialize()
     {
@@ -46,7 +68,7 @@ public static class AudioRecorder
     }
     
 
-    public  static void StartRecording(AudioClip startClip)
+    public void StartRecording(AudioClip startClip)
     {
         _currentAudioClip = startClip;
         Initialize();
@@ -58,7 +80,7 @@ public static class AudioRecorder
                 _currentAudioClip = null;
                 //Start recording and store the audio captured from the microphone at the AudioClip in the AudioSource    
                 _currentAudioClip= Microphone.Start(null, true, 20, _maxFreq);    
-                
+                onClipRecordingStart.Raise();
             }    
            
         }    
@@ -68,10 +90,10 @@ public static class AudioRecorder
         }    
     }
 
-    public static AudioClip EndRecording()
+    public AudioClip EndRecording()
     {
         Microphone.End(null); //Stop the audio recording    
-        Debug.Log(_currentAudioClip);
+        onClipRecordingEnd.Raise();
         return _currentAudioClip;
     }
  

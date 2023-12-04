@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
@@ -14,7 +15,7 @@ public class FPSController : MonoBehaviour
    [SerializeField]private float lookSpeed = 2f;
    [SerializeField]private float lookXLimit = 45f;
    [SerializeField]private bool canMove = true;
-   
+   // [SerializeField] public GameEventGameObject onModelPointing;
    
    private Vector3 moveDirection = Vector3.zero;
    private float rotationX = 0;
@@ -24,6 +25,7 @@ public class FPSController : MonoBehaviour
 
    private bool _clipRecordIsEnabled;
    private AudioSourceManager _currentAudioSourceManager;
+   private ElementManager _currentElemManager;
    private long _timeStartRecord;
    private bool _isRecording;
    Ray _rayOrigin;
@@ -86,7 +88,7 @@ public class FPSController : MonoBehaviour
       if (Input.GetKeyDown(KeyCode.R)  && _clipRecordIsEnabled && !_isRecording)
       {
          
-            AudioRecorder.StartRecording(source);
+            AudioRecorder.Instance.StartRecording(source);
             _timeStartRecord =  currentTime;
             _isRecording = true;
         
@@ -94,13 +96,16 @@ public class FPSController : MonoBehaviour
       else if (Input.GetKeyDown(KeyCode.R) && _isRecording)
       {
          _isRecording = false;
-         _currentAudioSourceManager.SetNewAudioClip(AudioRecorder.EndRecording(), currentTime - _timeStartRecord);
+         // _currentAudioSourceManager.SetNewAudioClip(AudioRecorder.Instance.EndRecording(), currentTime - _timeStartRecord);
+         _currentElemManager.SetRecording(AudioRecorder.Instance.EndRecording(), currentTime - _timeStartRecord);
       }
       
       if (Input.GetKeyUp(KeyCode.R) && _isRecording  && _timeStartRecord + 2 < currentTime)
       {
             _isRecording = false;
-            _currentAudioSourceManager.SetNewAudioClip(AudioRecorder.EndRecording(), currentTime - _timeStartRecord);
+            _currentElemManager.SetRecording(AudioRecorder.Instance.EndRecording(), currentTime - _timeStartRecord);
+            // _currentAudioSourceManager.SetNewAudioClip(AudioRecorder.EndRecording(), currentTime - _timeStartRecord);
+            // onClipRecordingStop.Raise();
       }
 
       #endregion
@@ -114,13 +119,25 @@ public class FPSController : MonoBehaviour
       if (raycastHit && !_clipRecordIsEnabled)
       {
          Debug.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * 5f, Color.yellow);
-         _currentAudioSourceManager = _hitInfo.transform.gameObject.GetComponentInParent<AudioSourceManager>();
+         // _currentAudioSourceManager = _hitInfo.transform.gameObject.GetComponentInParent<AudioSourceManager>();
+         if (_currentElemManager is not null)
+         {
+            _currentElemManager.NotPointedAt();
+            _currentElemManager = null;
+         }
+         _currentElemManager = _hitInfo.transform.gameObject.GetComponentInParent<ElementManager>();
+         if (_currentElemManager is null)
+         {
+            _currentElemManager = _hitInfo.transform.gameObject.GetComponent<ElementManager>();
+
+         }
+         _currentElemManager.PointedAt();
          _clipRecordIsEnabled = true;
-         Debug.Log(_currentAudioSourceManager);
-         Debug.Log( _hitInfo.transform.gameObject);
+      
       }
       else if (!raycastHit && !_isRecording && _clipRecordIsEnabled)
       {
+         _currentElemManager.NotPointedAt();
          _clipRecordIsEnabled = false;
          _currentAudioSourceManager = null;
       }
