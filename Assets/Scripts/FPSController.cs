@@ -118,7 +118,7 @@ public class FPSController : MonoBehaviour
          // _currentAudioSourceManager = _hitInfo.transform.gameObject.GetComponentInParent<AudioSourceManager>();
          if (_currentElemManager is not null)
          {
-            _currentElemManager.NotPointedAt();
+            _currentElemManager?.NotPointedAt();
             _currentElemManager = null;
          }
          _currentElemManager = _hitInfo.transform.gameObject.GetComponentInParent<ElementManager>();
@@ -127,7 +127,7 @@ public class FPSController : MonoBehaviour
             _currentElemManager = _hitInfo.transform.gameObject.GetComponent<ElementManager>();
 
          }
-         _currentElemManager.PointedAt();
+         _currentElemManager?.PointedAt();
          _clipRecordIsEnabled = true;
       
       }

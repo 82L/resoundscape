@@ -38,6 +38,7 @@ public class ElementManager : MonoBehaviour
     {
         if (!_isPointed)
         {
+            _isPointed = true;
             onModelPointed.Raise();
         }
     }
@@ -46,6 +47,7 @@ public class ElementManager : MonoBehaviour
     {
         if (_isPointed)
         {
+            _isPointed = false;
             onModelUnpointed.Raise();
 
         }

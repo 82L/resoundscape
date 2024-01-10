@@ -13,16 +13,18 @@ public class AudioRecorder : MonoBehaviour
 
     public static AudioRecorder Instance
     {
-        get;
-        private set;
+        get => _instance;
+        private set  => _instance = value;
     }
     private AudioRecorder(){} 
-    void Awake()
+    private void Awake()
     {
         if (_instance != null && _instance != this)
-            Destroy(gameObject);    // Suppression d'une instance précédente (sécurité...sécurité...)
- 
-        _instance = this;
+            Destroy(this);
+        else
+            _instance = this;
+        
+        DontDestroyOnLoad(gameObject);
     }
 
     // Boolean flags shows if the microphone is connected   

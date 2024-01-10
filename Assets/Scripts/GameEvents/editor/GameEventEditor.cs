@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine;
 [CustomEditor(typeof(GameEvent))]
 public class GameEventEditor : Editor
 {
