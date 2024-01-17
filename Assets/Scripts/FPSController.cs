@@ -4,13 +4,15 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
 {
+   [SerializeField]private float gravity = 10f;
    [SerializeField]private Camera playerCamera;
    [SerializeField]private float walkSpeed = 6f;
    [SerializeField]private float runSpeed = 12f;
    [SerializeField] private AudioClip source;
-   
    [SerializeField]private float lookSpeed = 2f;
    [SerializeField]private float lookXLimit = 45f;
+   
+   [SerializeField]private float jumpPower = 1f;
    [SerializeField]private bool canMove = true;
    // [SerializeField] public GameEventGameObject onModelPointing;
    
@@ -51,19 +53,20 @@ public class FPSController : MonoBehaviour
 
       #region Handles Jumping
 
-      // if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
-      // {
-      //    moveDirection.y = jumpPower;
-      // }
-      // else
-      // {
-      //    moveDirection.y = movementDirectionY;
-      // }
-      //
-      // if (!characterController.isGrounded)
-      // {
-      //    moveDirection.y = gravity * Time.deltaTime;
-      // }
+      if (Input.GetButton("Jump") && canMove && _characterController.isGrounded)
+      {
+        _moveDirection.y = jumpPower;
+      }
+      
+      else
+      {
+         _moveDirection.y = movementDirectionY;
+      }
+
+      if (!_characterController.isGrounded)
+      {
+         _moveDirection.y -= gravity * Time.deltaTime;
+      }
 
       #endregion
 
