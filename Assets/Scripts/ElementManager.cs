@@ -56,6 +56,7 @@ public class ElementManager : MonoBehaviour
             onModelPointed.Raise();
             if (_outline is not null)
             {
+                DOTween.CompleteAll();
                 _outline.OutlineMode = Outline.Mode.OutlineVisible;
                 DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x,outlineWidthMax, 0.3f );
             }
@@ -70,6 +71,7 @@ public class ElementManager : MonoBehaviour
             onModelUnpointed.Raise();
             if (_outline is not null)
             {
+                DOTween.CompleteAll();
                 DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x, outlineWidthMin, 0.3f)
                     .onComplete = RemoveOutline;
             }
