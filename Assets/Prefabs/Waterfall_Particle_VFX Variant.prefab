@@ -238,7 +238,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onModelPointed: {fileID: 11400000, guid: 935f1ceaa17488042898012e57301ebf, type: 2}
   onModelUnpointed: {fileID: 11400000, guid: 53d257fd9b3587d4e8ed83b48cd28610, type: 2}
-  outlineWidthMax: 8
+  outlineWidthMax: 0
   outlineWidthMin: 0
 --- !u!136 &4181819939421576106
 CapsuleCollider:

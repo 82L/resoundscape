@@ -12,7 +12,7 @@ public class ElementManager : MonoBehaviour
     private AudioSourceManager _audioSourceManager;
 
     private bool _isPointed = false;
-    private Outline _outline;
+    private Outline _outline = null;
     [SerializeField] private GameEvent onModelPointed;
     [SerializeField] private GameEvent onModelUnpointed;
 
@@ -22,10 +22,13 @@ public class ElementManager : MonoBehaviour
     private void Start()
     {
         _audioSourceManager = GetComponent<AudioSourceManager>();
-        _outline = gameObject.AddComponent<Outline>();
-        _outline.OutlineMode = Outline.Mode.OutlineHidden;
-        _outline.OutlineColor = Color.white;
-        _outline.OutlineWidth = outlineWidthMin;
+        if (outlineWidthMax > 0f)
+        {
+            _outline = gameObject.AddComponent<Outline>();
+            _outline.OutlineMode = Outline.Mode.OutlineHidden;
+            _outline.OutlineColor = Color.white;
+            _outline.OutlineWidth = outlineWidthMin;
+        }
     }
 
     public void OnPointing(GameObject mPointedObject)
@@ -51,8 +54,11 @@ public class ElementManager : MonoBehaviour
         {
             _isPointed = true;
             onModelPointed.Raise();
-            _outline.OutlineMode = Outline.Mode.OutlineVisible;
-            DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x,outlineWidthMax, 0.3f );
+            if (_outline is not null)
+            {
+                _outline.OutlineMode = Outline.Mode.OutlineVisible;
+                DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x,outlineWidthMax, 0.3f );
+            }
         }
     }
 
@@ -62,10 +68,18 @@ public class ElementManager : MonoBehaviour
         {
             _isPointed = false;
             onModelUnpointed.Raise();
-            _outline.OutlineMode = Outline.Mode.OutlineHidden;
-            DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x,outlineWidthMin, 0.3f);
-
+            if (_outline is not null)
+            {
+                DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x, outlineWidthMin, 0.3f)
+                    .onComplete = RemoveOutline;
+            }
+           
         }
+    }
+
+    private void RemoveOutline()
+    {
+        _outline.OutlineMode = Outline.Mode.OutlineHidden;
     }
   
 }
