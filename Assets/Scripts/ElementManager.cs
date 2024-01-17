@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 [RequireComponent(typeof(AudioSourceManager))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class ElementManager : MonoBehaviour
 {
     private AudioSourceManager _audioSourceManager;
@@ -12,13 +16,16 @@ public class ElementManager : MonoBehaviour
     [SerializeField] private GameEvent onModelPointed;
     [SerializeField] private GameEvent onModelUnpointed;
 
+    [FormerlySerializedAs("_outlineWidthMax")] [SerializeField] private float outlineWidthMax = 8f;
+    [FormerlySerializedAs("_outlineWidthMin")] [SerializeField] private float outlineWidthMin = 0f;
     // Start is called before the first frame update
     private void Start()
     {
         _audioSourceManager = GetComponent<AudioSourceManager>();
         _outline = gameObject.AddComponent<Outline>();
         _outline.OutlineMode = Outline.Mode.OutlineHidden;
-        _outline.OutlineColor = Color.black;
+        _outline.OutlineColor = Color.white;
+        _outline.OutlineWidth = outlineWidthMin;
     }
 
     public void OnPointing(GameObject mPointedObject)
@@ -45,6 +52,7 @@ public class ElementManager : MonoBehaviour
             _isPointed = true;
             onModelPointed.Raise();
             _outline.OutlineMode = Outline.Mode.OutlineVisible;
+            DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x,outlineWidthMax, 0.3f );
         }
     }
 
@@ -55,6 +63,7 @@ public class ElementManager : MonoBehaviour
             _isPointed = false;
             onModelUnpointed.Raise();
             _outline.OutlineMode = Outline.Mode.OutlineHidden;
+            DOTween.To(() => _outline.OutlineWidth, x => _outline.OutlineWidth = x,outlineWidthMin, 0.3f);
 
         }
     }
