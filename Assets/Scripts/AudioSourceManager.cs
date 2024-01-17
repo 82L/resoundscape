@@ -7,11 +7,14 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(AudioSource))]
 public class AudioSourceManager : MonoBehaviour
 {
-    public bool isLooping = false;
+    [SerializeField]private bool isLooping = false;
     [SerializeField]private float minWaitBetweenPlays = 1f;
     [SerializeField]private float maxWaitBetweenPlays = 5f;
+    [Space]
+    [Header("Debugging")]
     [SerializeField] private float waitTimeCountdown = -1f;
     [SerializeField] private AudioClip audioClip;
+    
     private long duration = 0;
     private long _timeSincePlay = 0;
     private AudioSource _audioSource;
