@@ -8,6 +8,7 @@ public class ElementManager : MonoBehaviour
     private AudioSourceManager _audioSourceManager;
 
     private bool _isPointed = false;
+    private Outline _outline;
     [SerializeField] private GameEvent onModelPointed;
     [SerializeField] private GameEvent onModelUnpointed;
 
@@ -15,6 +16,9 @@ public class ElementManager : MonoBehaviour
     private void Start()
     {
         _audioSourceManager = GetComponent<AudioSourceManager>();
+        _outline = gameObject.AddComponent<Outline>();
+        _outline.OutlineMode = Outline.Mode.OutlineHidden;
+        _outline.OutlineColor = Color.black;
     }
 
     public void OnPointing(GameObject mPointedObject)
@@ -40,6 +44,7 @@ public class ElementManager : MonoBehaviour
         {
             _isPointed = true;
             onModelPointed.Raise();
+            _outline.OutlineMode = Outline.Mode.OutlineVisible;
         }
     }
 
@@ -49,6 +54,7 @@ public class ElementManager : MonoBehaviour
         {
             _isPointed = false;
             onModelUnpointed.Raise();
+            _outline.OutlineMode = Outline.Mode.OutlineHidden;
 
         }
     }
